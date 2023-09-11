@@ -1,0 +1,19 @@
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+repository:
+  name: iroha-2-examples
+  homepage: https://wiki.hyperledger.org/display/iroha
+  default_branch: main
+  description: Iroha 2 examples
+  has_downloads: true
+  has_issues: true
+  has_projects: false
+  has_wiki: false
+  archived: false
+  private: false
+  allow_squash_merge: true
+  allow_merge_commit: false
+  allow_rebase_merge: true
+
