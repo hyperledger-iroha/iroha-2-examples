@@ -1,0 +1,30 @@
+[package]
+name = "iroha_2_examples"
+version = "0.1.0"
+edition = "2021"
+
+authors = ["Iroha 2 team <https://github.com/orgs/soramitsu/teams/iroha2>"]
+description = "Example repository for Iroha 2 ledger"
+repository = "https://github.com/hyperledger/iroha-2-examples"
+documentation = "https://hyperledger.github.io/iroha-2-docs"
+homepage = "https://iroha.tech"
+
+license = "Apache-2.0"
+keywords = ["blockchain", "crypto", "iroha", "ledger"]
+categories = ["cryptography::cryptocurrencies"]
+
+[dependencies]
+iroha = { "git" = "https://github.com/hyperledger/iroha.git", branch = "iroha2-dev" }
+iroha_crypto = { "git" = "https://github.com/hyperledger/iroha.git", branch = "iroha2-dev" }
+iroha_client = { "git" = "https://github.com/hyperledger/iroha.git", branch = "iroha2-dev" }
+iroha_config = { "git" = "https://github.com/hyperledger/iroha.git", branch = "iroha2-dev" }
+iroha_data_model = { "git" = "https://github.com/hyperledger/iroha.git", branch = "iroha2-dev" }
+iroha_genesis = { "git" = "https://github.com/hyperledger/iroha.git", branch = "iroha2-dev" }
+test_network = { "git" = "https://github.com/hyperledger/iroha.git", branch = "iroha2-dev" }
+
+eyre = "0.6.8"
+
+serde = { version = "1.0.151", default-features = false }
+serde_json = { version = "1.0.91", default-features = false }
+
+tokio = "1.23.0"
