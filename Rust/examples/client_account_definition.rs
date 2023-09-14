@@ -1,8 +1,7 @@
-use eyre::{Error};
+use eyre::Error;
 
 fn main() {
-    account_definition_test()
-        .expect("Account definition example is expected to work correctly");
+    account_definition_test().expect("Account definition example is expected to work correctly");
 
     println!("Account definition example works!");
 }

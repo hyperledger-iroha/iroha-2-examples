@@ -1,12 +1,10 @@
-use std::fs::File;
 use eyre::{Error, WrapErr};
 use iroha_config::client::Configuration;
+use std::fs::File;
 
 fn main() {
-    let config = load_configuration()
-        .expect("Configuration should be loading normally");
-    asset_burning_test(&config)
-        .expect("Asset burning example is expected to work correctly");
+    let config = load_configuration().expect("Configuration should be loading normally");
+    asset_burning_test(&config).expect("Asset burning example is expected to work correctly");
 
     println!("Asset burning example works!");
 }
@@ -15,7 +13,10 @@ fn load_configuration() -> Result<Configuration, Error> {
     // #region rust_config_load
     let config_loc = "./config.json";
     let file = File::open(config_loc)
-        .wrap_err(format!("Unable to load the configuration file at `{}`", config_loc))
+        .wrap_err(format!(
+            "Unable to load the configuration file at `{}`",
+            config_loc
+        ))
         .expect("Config file is loading normally.");
     let config: Configuration = serde_json::from_reader(file)
         .wrap_err(format!("Failed to parse `{}`", config_loc))
