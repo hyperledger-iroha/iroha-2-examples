@@ -1,0 +1,11 @@
+{
+  Register: {
+    NewAssetDefinition: {
+      id: "time#looking_glass",
+      value_type: "Quantity",
+      mintable: "Once",
+      // FIXME: remove empty metadata requirement
+      metadata: {}
+    }
+  }
+}
