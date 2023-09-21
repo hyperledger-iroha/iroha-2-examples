@@ -1,0 +1,11 @@
+[
+  {
+    Register: {
+      NewDomain: {
+        id: "looking_glass",
+        // FIXME: remove empty metadata requirement
+        metadata: {}
+      }
+    }
+  }
+]

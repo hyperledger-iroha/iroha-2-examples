@@ -1,0 +1,8 @@
+{
+  Burn: {
+    object: "7_u32",
+    destination_id: {
+      AssetId: "time##white_rabbit@looking_glass"
+    }
+  }
+}
