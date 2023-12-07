@@ -18,6 +18,7 @@ iroha = { "git" = "https://github.com/hyperledger/iroha.git", branch = "iroha2-d
 iroha_crypto = { "git" = "https://github.com/hyperledger/iroha.git", branch = "iroha2-dev" }
 iroha_client = { "git" = "https://github.com/hyperledger/iroha.git", branch = "iroha2-dev" }
 iroha_config = { "git" = "https://github.com/hyperledger/iroha.git", branch = "iroha2-dev" }
+iroha_config_base = { "git" = "https://github.com/hyperledger/iroha.git", branch = "iroha2-dev" }
 iroha_data_model = { "git" = "https://github.com/hyperledger/iroha.git", branch = "iroha2-dev" }
 iroha_genesis = { "git" = "https://github.com/hyperledger/iroha.git", branch = "iroha2-dev" }
 test_network = { "git" = "https://github.com/hyperledger/iroha.git", branch = "iroha2-dev" }
