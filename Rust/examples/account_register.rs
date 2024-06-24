@@ -18,7 +18,7 @@ fn main() -> iroha_examples::Result<()> {
     let as_alice_in_wonderland = AliceInWonderland::client();
     // The same signatory can have an account in different domains.
     register(&as_alice_in_wonderland, AliceInChess::account_id())?;
-    
+
     // The domain owner can also grant a permission to register accounts in the domain.
     let can_register_accounts_in_chess = Permission::new(
         "CanRegisterAccountInDomain".parse::<PermissionId>()?,
@@ -47,11 +47,8 @@ fn register(as_who: &Client, account: AccountId) -> iroha_examples::Result<()> {
     as_who.submit_blocking(register_account)?;
     // Observe that the account has really been registered.
     let account = as_who.request(account::by_id(account))?;
-    println!(
-        "---------------\n\
-        `account_id`: {}\n\
-        Registered by {}",
-        account.id, as_who.account,
-    );
+    println!("Account: {}\nRegistered by: {}", account.id, as_who.account);
+    // Account: ed12...41@wonderland
+    // Registered by: ed01...12@wonderland
     Ok(())
 }

@@ -16,10 +16,10 @@ fn main() -> iroha_examples::Result<()> {
         .request(domain::by_id(chess.clone()))
         .expect_err("domain should not be found");
     println!(
-        "---------------\n\
-        `domain_id`: {chess}\n\
-        Unregistered by {}",
-        as_alice_in_wonderland.account
+        "Domain: {}\nUnregistered by: {}",
+        chess, as_alice_in_wonderland.account
     );
+    // Domain: chess
+    // Unregistered by: ed01...03@wonderland
     Ok(())
 }

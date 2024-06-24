@@ -12,10 +12,10 @@ fn main() -> iroha_examples::Result<()> {
     as_alice_in_wonderland.submit_blocking(register_chess)?;
     let chess = as_alice_in_wonderland.request(domain::by_id(chess))?;
     println!(
-        "---------------\n\
-        `domain_id`: {}\n\
-        Registered by {}",
-        chess.id, as_alice_in_wonderland.account
+        "Domain: {}\nRegistered by: {}",
+        chess, as_alice_in_wonderland.account
     );
+    // Domain: chess
+    // Registered by: ed01...03@wonderland
     Ok(())
 }

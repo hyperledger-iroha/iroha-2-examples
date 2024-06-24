@@ -45,13 +45,13 @@ fn transfer(
     let domain = as_who.request(domain::by_id(domain.clone()))?;
     assert_eq!(domain.owned_by, to);
     println!(
-        "---------------\n\
-        `domain_id`: {}\n\
-        Transferred\n\
-        \tfrom {from}\n\
-        \tto {to}\n\
-        by {}",
-        domain.id, as_who.account,
+        "Domain: {}\nTransferred\n\tfrom: {}\n\tto: {}\nby: {}",
+        domain.id, from, to, as_who.account
     );
+    // Domain: chess
+    // Transferred
+    //     from: ed01...03@wonderland
+    //     to: ed01...16@wonderland
+    // by: ed01...03@wonderland
     Ok(())
 }

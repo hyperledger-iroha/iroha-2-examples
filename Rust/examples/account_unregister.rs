@@ -26,11 +26,8 @@ fn unregister(as_who: &Client, account: AccountId) -> iroha_examples::Result<()>
     as_who
         .request(account::by_id(account.clone()))
         .expect_err("account should not be found");
-    println!(
-        "---------------\n\
-        `account_id`: {account}\n\
-        Unregistered by {}",
-        as_who.account
-    );
+    println!("Account: {}\nUnregistered by: {}", account, as_who.account);
+    // Account: ed12...41@wonderland
+    // Unregistered by: ed01...12@wonderland
     Ok(())
 }

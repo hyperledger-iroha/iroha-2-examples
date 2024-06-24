@@ -1,4 +1,4 @@
-//! Iroha examples library.
+//! Iroha examples library. Doubles as a tutorial for Iroha's data model.
 
 use iroha::client::Client;
 use iroha::config::Config;
@@ -9,11 +9,17 @@ pub type Result<T> = eyre::Result<T>;
 
 /// An example domain.
 pub trait ExampleDomain {
-    /// Name of the [`ExampleDomain`].
+    /// Name of the example domain.
+    ///
+    /// Cannot be empty, cannot contain whitespace or reserved characters `@` and `#`.
     const NAME: &'static str;
 
-    /// Constructs a [`DomainId`] for the [`ExampleDomain`].
+    /// A domain is identified by a [`DomainId`], which is backed by a [`Name`].
+    ///
+    /// A [`Name`] cannot be empty, cannot contain whitespace or characters `@` and `#`,
+    /// which are reserved for accounts and assets.
     fn domain_id() -> DomainId {
+        // You can also parse into a `Name`, then use `DomainId::new`.
         Self::NAME.parse::<DomainId>().unwrap()
     }
 }
@@ -22,16 +28,25 @@ pub trait ExampleDomain {
 ///
 /// In the examples, each signatory is a character.
 pub trait ExampleSignatory {
-    /// Alias of the [`ExampleSignatory`].
+    /// Alias of the example signatory.
+    ///
+    /// TODO: Iroha does not support [alias resolution] yet,
+    ///  this field is purely for example convenience now,
+    ///  since public keys are not as readable. Used to
+    ///  generate some of the example key pairs.
+    ///
+    /// [alias resolution]: https://github.com/hyperledger/iroha/issues/4372
     const ALIAS: &'static str;
 
-    /// Public key identifying the [`ExampleSignatory`].
+    /// A signatory is identified by its public key.
+    ///
+    /// Some example signatories like [Alice] and [Bob]
+    /// override this and provide a previously defined key.
     fn public_key() -> PublicKey {
         let (public_key, private_key) =
             KeyPair::from_seed(Self::ALIAS.as_bytes().to_vec(), Algorithm::default()).into_parts();
         println!(
-            "---------------\n\
-            Generated key pair for `{}`\n\
+            "Generated key pair for `{}`\n\
             Public: {}\n\
             Private (save this): {}",
             Self::ALIAS,
@@ -50,15 +65,27 @@ where
     Signatory: ExampleSignatory,
     Domain: ExampleDomain,
 {
-    /// Constructs an [`AccountId`] for the [`ExampleAccount`].
+    /// An account is identified by an [`AccountId`]
+    /// composed of a [`PublicKey`] and a [`DomainId`].
+    ///
+    /// An [`AccountId`] can be parsed from a string of the form `public_key@domain`.
     pub fn account_id() -> AccountId {
-        AccountId::new(Domain::domain_id(), Signatory::public_key())
+        let signatory = Signatory::public_key();
+        let domain = Domain::domain_id();
+        // return format!("{signatory}@{domain}").parse::<AccountId>().unwrap();
+        AccountId::new(domain, signatory)
     }
 
-    /// Creates an Iroha client acting on behalf of the [`ExampleAccount`].
+    /// You need a [`Client`] to be able to submit instructions to Iroha.
     ///
-    /// The corresponding config must exist at `../configs/{signatory}_{domain}.toml`.
+    /// A client acts on behalf of an account, which is sometimes called an *authority*.
+    /// Depending on which permissions the *authority* has, and which objects the *authority*
+    /// owns, instructions submitted by the client will succeed or fail.
+    ///
+    /// This function demonstrates how to set up a client, and provides
+    /// a way to quickly set up different actors in example scenarios.
     pub fn client() -> Client {
+        // The corresponding config must exist at `../configs/{signatory}_{domain}.toml`.
         let config = Config::load(format!(
             "configs/{}_{}.toml",
             Signatory::ALIAS,
@@ -79,9 +106,8 @@ where
             client.account
         );
         println!(
-            "---------------\n\
-            Client for `{}` in `{}` created.\n\
-            account_id: {}",
+            "Client for `{}` in `{}` created.\n\
+            Account: {}",
             Signatory::ALIAS,
             Domain::NAME,
             client.account,
@@ -92,159 +118,82 @@ where
 
 /// An example asset name.
 ///
-/// The same asset name may appear in different domains.
+/// **Note:** the same asset name may appear in different domains.
+/// It is meaningless unless specified to a [domain](ExampleDomain).
 pub trait ExampleAssetName {
     /// Human-readable asset name.
     const NAME: &'static str;
 
     /// Constructs a [`Name`] from the [`ExampleAssetName`].
+    ///
+    /// A [`Name`] cannot be empty, cannot contain whitespace or characters `@` and `#`,
+    /// which are reserved for accounts and assets.
+    ///
+    /// **Note:** an asset name is different from an [asset definition] or an [asset].
+    ///
+    /// [asset definition]: ExampleAssetDefinition
+    /// [asset]: ExampleAsset
     fn asset_name() -> Name {
         Self::NAME.parse::<Name>().unwrap()
     }
 }
 
-/// Numeric precision, either [`Unconstrained`]
-/// or fixed up to a number of [`DecimalPoints`].
-pub trait NumericPrecision {
-    /// Returns the [`NumericSpec`] of this [`Precision`].
-    fn numeric_spec() -> NumericSpec;
-}
-
-/// Unconstrained [`NumericPrecision`].
-pub struct Unconstrained;
-
-impl NumericPrecision for Unconstrained {
-    fn numeric_spec() -> NumericSpec {
-        NumericSpec::unconstrained()
-    }
-}
-
-/// [`NumericPrecision`] up to `N` decimal points.
-pub struct DecimalPoints<const N: u32>;
-
-impl<const N: u32> NumericPrecision for DecimalPoints<N> {
-    fn numeric_spec() -> NumericSpec {
-        NumericSpec::fractional(N)
-    }
-}
-
-/// An example asset type.
+/// An asset definition with a [name](ExampleAssetName)
+/// specified to a [domain](ExampleDomain).
 ///
-/// This determines whether the asset is [`Numeric`] or [`Store`].
-pub trait ExampleAssetType {
-    /// Returns the [`AssetValueType`] of the [`ExampleAssetType`].
-    fn value_type() -> AssetValueType;
+/// It is essentially a *blueprint* for a resource
+/// that can be issued and managed for an account.
+pub struct ExampleAssetDefinition<AssetName, Domain>(AssetName, Domain);
 
-    /// Constructs a [`NewAssetDefinition`] from the [`ExampleAssetType`].
-    fn new_asset_definition(asset_definition_id: AssetDefinitionId) -> NewAssetDefinition {
-        AssetDefinition::new(asset_definition_id, Self::value_type())
-    }
-}
-
-/// Non-fungible item.
-/// 
-/// A non-fungible item is unique, can be minted AND burned exactly once.
-pub struct NonFungible;
-
-impl ExampleAssetType for NonFungible {
-    fn value_type() -> AssetValueType {
-        todo!("Iroha does not support non-fungible assets directly")
-    }
-}
-
-/// Dictionary-like resource.
-///
-/// `Store` assets store key-value pairs.
-pub struct Store;
-
-impl ExampleAssetType for Store {
-    fn value_type() -> AssetValueType {
-        AssetValueType::Store
-    }
-}
-
-/// Numeric resource with the given precision
-/// that is `MINTABLE` repeatedly or only once.
-///
-/// `Numeric` assets are minted and burned.
-pub struct Numeric<const MINTABLE: bool, Precision: NumericPrecision>(Precision);
-
-impl<const MINTABLE: bool, Precision: NumericPrecision> ExampleAssetType
-    for Numeric<MINTABLE, Precision>
-{
-    fn value_type() -> AssetValueType {
-        AssetValueType::Numeric(Precision::numeric_spec())
-    }
-
-    fn new_asset_definition(asset_definition_id: AssetDefinitionId) -> NewAssetDefinition {
-        let definition = AssetDefinition::new(asset_definition_id, Self::value_type());
-        if MINTABLE {
-            definition
-        } else {
-            definition.mintable_once()
-        }
-    }
-}
-
-/// [`Numeric`] asset type with arbitrary precision
-/// that is `MINTABLE` repeatedly or only once.
-pub type Arbitrary<const MINTABLE: bool> = Numeric<MINTABLE, Unconstrained>;
-
-/// [`Numeric`] asset type with a fixed precision up to `N` decimal points
-/// that is `MINTABLE` repeatedly or only once.
-pub type FixedNumeric<const MINTABLE: bool, const N: u32> = Numeric<MINTABLE, DecimalPoints<N>>;
-
-/// An [`ExampleAssetName`] specified to an [`ExampleDomain`].
-pub struct ExampleAssetDefinition<Type, Name, Domain>(Type, Name, Domain);
-
-impl<Type, Name, Domain> ExampleAssetDefinition<Type, Name, Domain>
+impl<AssetName, Domain> ExampleAssetDefinition<AssetName, Domain>
 where
-    Type: ExampleAssetType,
-    Name: ExampleAssetName,
+    AssetName: ExampleAssetName,
     Domain: ExampleDomain,
 {
-    /// Constructs an [`AssetDefinitionId`] from the [`ExampleAssetDefinition`].
+    /// An asset definition is identified by an [`AssetDefinitionId`]
+    /// composed of a [`Name`] and a [`DomainId`].
+    ///
+    /// An [`AssetDefinitionId`] can be parsed from a string of the form `asset_name#domain`.
     pub fn asset_definition_id() -> AssetDefinitionId {
-        AssetDefinitionId::new(Domain::domain_id(), Name::asset_name())
+        let asset_name = AssetName::asset_name();
+        let domain = Domain::domain_id();
+        // return format!("{asset_name}#{domain}").parse::<AssetDefinitionId>().unwrap();
+        AssetDefinitionId::new(domain, asset_name)
     }
 }
 
-impl<Type, Name, Domain> ExampleAssetDefinition<Type, Name, Domain>
-where
-    Type: ExampleAssetType,
-    Name: ExampleAssetName,
-    Domain: ExampleDomain,
-{
-    /// Constructs an [`NewAssetDefinition`] from the [`ExampleAssetDefinition`].
-    pub fn asset_definition() -> NewAssetDefinition {
-        Type::new_asset_definition(Self::asset_definition_id())
-    }
-}
-
-/// An instance of an [`ExampleAssetDefinition`] belonging to an [`ExampleAccount`].
+/// An asset of a [certain type](ExampleAssetDefinition)
+/// owned by an [account](ExampleAccount).
 ///
-/// **Note**: the asset definition and the account
+/// **Note:** the asset definition and the account
 /// do not have to belong to the same domain.
 pub struct ExampleAsset<Definition, Account>(Definition, Account);
 
-impl<AssetType, AssetName, AssetDomain, Signatory, AccountDomain>
+impl<AssetName, AssetDomain, AssetOwner, OwnerDomain>
     ExampleAsset<
-        ExampleAssetDefinition<AssetType, AssetName, AssetDomain>,
-        ExampleAccount<Signatory, AccountDomain>,
+        ExampleAssetDefinition<AssetName, AssetDomain>,
+        ExampleAccount<AssetOwner, OwnerDomain>,
     >
 where
-    AssetType: ExampleAssetType,
     AssetName: ExampleAssetName,
     AssetDomain: ExampleDomain,
-    Signatory: ExampleSignatory,
-    AccountDomain: ExampleDomain,
+    AssetOwner: ExampleSignatory,
+    OwnerDomain: ExampleDomain,
 {
-    /// Constructs an [`AssetId`] from the asset.
+    /// An asset is identified by an [`AssetId`]
+    /// composed of an [`AssetDefinitionId`] and an [`AccountId`].
+    ///
+    /// An [`AssetId`] has two string representation it can be parsed from:
+    /// - `asset_name#asset_domain#asset_owner@owner_domain`:
+    ///    when the asset and its owner belong to different domains
+    /// - `asset_name##asset_owner@common_domain`:
+    ///    when the asset and its owner share the domain
     pub fn asset_id() -> AssetId {
-        AssetId::new(
-            ExampleAssetDefinition::<AssetType, AssetName, AssetDomain>::asset_definition_id(),
-            ExampleAccount::<Signatory, AccountDomain>::account_id(),
-        )
+        let asset_definition =
+            ExampleAssetDefinition::<AssetName, AssetDomain>::asset_definition_id();
+        let owner = ExampleAccount::<AssetOwner, OwnerDomain>::account_id();
+        // return format!("{asset_definition}#{owner}").parse::<AssetId>().unwrap();
+        AssetId::new(asset_definition, owner)
     }
 }
 
@@ -324,20 +273,6 @@ pub type MagnusInChess = ExampleAccount<Magnus, Chess>;
 
 ////////////////////////////////////////////
 
-/// Numeric asset type that takes integer values
-/// and is `MINTABLE` repeatedly or only once.
-///
-/// - **Example values:** 0, 1, -123.
-/// - **Invalid values:** -31.12, 0.1.
-pub type Integral<const MINTABLE: bool> = FixedNumeric<MINTABLE, 0>;
-
-/// Numeric asset type that behaves like a currency with a cent
-/// and is `MINTABLE` repeatedly or only once.
-///
-/// - **Example values:** 123, 0.1, 0.01, 999.99.
-/// - **Invalid values:** 1.123, 0.001.
-pub type Centecimal<const MINTABLE: bool> = FixedNumeric<MINTABLE, 2>;
-
 /// The general idea of roses.
 pub struct Roses;
 
@@ -366,38 +301,18 @@ impl ExampleAssetName for Book {
     const NAME: &'static str = "book";
 }
 
-/// The general idea of a title.
-pub struct Title;
-
-impl ExampleAssetName for Title {
-    const NAME: &'static str = "title";
-}
-
 /// `rose#wonderland` is defined in the default genesis block.
-///
-/// Backed by an [`Arbitrary`] numeric type, and can be minted indefinitely.
-pub type WonderlandRoses = ExampleAssetDefinition<Arbitrary<true>, Roses, Wonderland>;
+pub type WonderlandRoses = ExampleAssetDefinition<Roses, Wonderland>;
 /// `money#wonderland` is defined in the `asset_definition_register` example.
-///
-/// Backed by a numeric type up to 2 decimal points, and can be minted indefinitely.
-pub type WonderlandMoney = ExampleAssetDefinition<Centecimal<true>, Money, Wonderland>;
+pub type WonderlandMoney = ExampleAssetDefinition<Money, Wonderland>;
 /// `pawn#chess` is defined in the `asset_definition_register` example.
-///
-/// Backed by an integral numeric type, and can only be minted once per account.
-pub type ChessPawns = ExampleAssetDefinition<Integral<false>, Pawns, Chess>;
+pub type ChessPawns = ExampleAssetDefinition<Pawns, Chess>;
 /// `book#chess` is defined in the `asset_definition_register` example.
-///
-/// Backed by a [`Store`] type.
-pub type ChessBook = ExampleAssetDefinition<Store, Book, Chess>;
-/// `title#chess` is defined in the TODO(`asset_register`) example.
-/// 
-/// TODO: It is supposed to be an example of a non-fungible token,
-///  a unique thing that is neither a numeric asset nor a store asset.
-pub type ChessTitle = ExampleAssetDefinition<NonFungible, Title, Chess>;
+pub type ChessBook = ExampleAssetDefinition<Book, Chess>;
 
 /// `roses##alice@wonderland` is defined in the default genesis block.
 pub type WonderlandRosesOfAliceInWonderland = ExampleAsset<WonderlandRoses, AliceInWonderland>;
-/// `roses##alice@wonderland` is defined in the TODO(`asset_register`) example.
+/// `money##alice@wonderland` is defined in the TODO(`asset_register`) example.
 pub type WonderlandMoneyOfAliceInWonderland = ExampleAsset<WonderlandRoses, AliceInWonderland>;
 /// `book#chess#alice@wonderland` is defined in the TODO(`asset_register`) example.
 pub type ChessBookOfAliceInWonderland = ExampleAsset<ChessBook, AliceInWonderland>;
