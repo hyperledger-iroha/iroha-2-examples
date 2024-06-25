@@ -18,7 +18,7 @@ pub trait ExampleDomain {
     ///
     /// A [`Name`] cannot be empty, cannot contain whitespace or characters `@` and `#`,
     /// which are reserved for accounts and assets.
-    fn domain_id() -> DomainId {
+    fn id() -> DomainId {
         // You can also parse into a `Name`, then use `DomainId::new`.
         Self::NAME.parse::<DomainId>().unwrap()
     }
@@ -69,10 +69,10 @@ where
     /// composed of a [`PublicKey`] and a [`DomainId`].
     ///
     /// An [`AccountId`] can be parsed from a string of the form `public_key@domain`.
-    pub fn account_id() -> AccountId {
+    pub fn id() -> AccountId {
         let signatory = Signatory::public_key();
-        let domain = Domain::domain_id();
-        // return format!("{signatory}@{domain}").parse::<AccountId>().unwrap();
+        let domain = Domain::id();
+        // "signatory@domain".parse::<AccountId>().unwrap();
         AccountId::new(domain, signatory)
     }
 
@@ -93,10 +93,10 @@ where
         ))
         .expect("config is loaded and valid");
         let client = Client::new(config);
-        let expected_account = ExampleAccount::<Signatory, Domain>::account_id();
+        let expected_account = ExampleAccount::<Signatory, Domain>::id();
         assert_eq!(
             client.account,
-            ExampleAccount::<Signatory, Domain>::account_id(),
+            ExampleAccount::<Signatory, Domain>::id(),
             "Client was requested for `{}`, but the actual authority does not match.\n\
             Check the corresponding client configuration file.\n\
             Expected: {}\n\
@@ -107,7 +107,7 @@ where
         );
         println!(
             "Client for `{}` in `{}` created.\n\
-            Account: {}",
+            Authority: {}",
             Signatory::ALIAS,
             Domain::NAME,
             client.account,
@@ -133,7 +133,7 @@ pub trait ExampleAssetName {
     ///
     /// [asset definition]: ExampleAssetDefinition
     /// [asset]: ExampleAsset
-    fn asset_name() -> Name {
+    fn name() -> Name {
         Self::NAME.parse::<Name>().unwrap()
     }
 }
@@ -154,10 +154,10 @@ where
     /// composed of a [`Name`] and a [`DomainId`].
     ///
     /// An [`AssetDefinitionId`] can be parsed from a string of the form `asset_name#domain`.
-    pub fn asset_definition_id() -> AssetDefinitionId {
-        let asset_name = AssetName::asset_name();
-        let domain = Domain::domain_id();
-        // return format!("{asset_name}#{domain}").parse::<AssetDefinitionId>().unwrap();
+    pub fn id() -> AssetDefinitionId {
+        let asset_name = AssetName::name();
+        let domain = Domain::id();
+        // "asset_name#asset_domain".parse::<AssetDefinitionId>().unwrap();
         AssetDefinitionId::new(domain, asset_name)
     }
 }
@@ -188,11 +188,11 @@ where
     ///    when the asset and its owner belong to different domains
     /// - `asset_name##asset_owner@common_domain`:
     ///    when the asset and its owner share the domain
-    pub fn asset_id() -> AssetId {
-        let asset_definition =
-            ExampleAssetDefinition::<AssetName, AssetDomain>::asset_definition_id();
-        let owner = ExampleAccount::<AssetOwner, OwnerDomain>::account_id();
-        // return format!("{asset_definition}#{owner}").parse::<AssetId>().unwrap();
+    pub fn id() -> AssetId {
+        let asset_definition = ExampleAssetDefinition::<AssetName, AssetDomain>::id();
+        let owner = ExampleAccount::<AssetOwner, OwnerDomain>::id();
+        // "asset_name#asset_domain#asset_owner@owner_domain".parse::<AssetId>().unwrap();
+        // "asset_name##asset_owner@common_domain".parse::<AssetId>().unwrap();
         AssetId::new(asset_definition, owner)
     }
 }
@@ -311,8 +311,12 @@ pub type ChessPawns = ExampleAssetDefinition<Pawns, Chess>;
 pub type ChessBook = ExampleAssetDefinition<Book, Chess>;
 
 /// `roses##alice@wonderland` is defined in the default genesis block.
-pub type WonderlandRosesOfAliceInWonderland = ExampleAsset<WonderlandRoses, AliceInWonderland>;
+pub type RosesOfAliceInWonderland = ExampleAsset<WonderlandRoses, AliceInWonderland>;
 /// `money##alice@wonderland` is defined in the TODO(`asset_register`) example.
-pub type WonderlandMoneyOfAliceInWonderland = ExampleAsset<WonderlandRoses, AliceInWonderland>;
+pub type MoneyOfAliceInWonderland = ExampleAsset<WonderlandMoney, AliceInWonderland>;
 /// `book#chess#alice@wonderland` is defined in the TODO(`asset_register`) example.
 pub type ChessBookOfAliceInWonderland = ExampleAsset<ChessBook, AliceInWonderland>;
+/// `money##bob@wonderland` is defined in the TODO(`asset_register`) example.
+pub type MoneyOfBobInWonderland = ExampleAsset<WonderlandMoney, BobInWonderland>;
+/// `money#wonderland#magnus@chess` is defined in the TODO(`asset_register`) example.
+pub type WonderlandMoneyOfMagnusInChess = ExampleAsset<WonderlandMoney, MagnusInChess>;

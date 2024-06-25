@@ -8,22 +8,22 @@ use iroha::data_model::prelude::{AccountId, DomainId, Transfer};
 use iroha_examples::{AliceInWonderland, BobInWonderland, ExampleDomain, Wonderland};
 
 fn main() -> iroha_examples::Result<()> {
-    let chess = Wonderland::domain_id();
-    let alice_in_wonderland = AliceInWonderland::account_id();
-    let bob_in_wonderland = BobInWonderland::account_id();
+    let chess = Wonderland::id();
+    let alice_in_wland = AliceInWonderland::id();
+    let bob_in_wland = BobInWonderland::id();
     // Transfer Chess from Alice in Wonderland to Bob in Wonderland.
     transfer(
         &AliceInWonderland::client(),
         chess.clone(),
-        alice_in_wonderland.clone(),
-        bob_in_wonderland.clone(),
+        alice_in_wland.clone(),
+        bob_in_wland.clone(),
     )?;
     // Transfer Chess back from Bob in Wonderland to Alice in Wonderland.
     transfer(
         &BobInWonderland::client(),
         chess,
-        bob_in_wonderland,
-        alice_in_wonderland,
+        bob_in_wland,
+        alice_in_wland,
     )?;
     Ok(())
 }

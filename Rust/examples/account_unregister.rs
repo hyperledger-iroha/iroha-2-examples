@@ -11,11 +11,11 @@ use iroha_examples::{AliceInChess, AliceInWonderland, BobInChess, MagnusInChess}
 fn main() -> iroha_examples::Result<()> {
     // An account's owner can unregister that account.
     let as_bob_in_chess = BobInChess::client();
-    unregister(&as_bob_in_chess, BobInChess::account_id())?;
+    unregister(&as_bob_in_chess, BobInChess::id())?;
     // A domain owner can unregister any account in that domain.
-    let as_alice_in_wonderland = AliceInWonderland::client();
-    unregister(&as_alice_in_wonderland, AliceInChess::account_id())?;
-    unregister(&as_alice_in_wonderland, MagnusInChess::account_id())?;
+    let as_alice_in_wland = AliceInWonderland::client();
+    unregister(&as_alice_in_wland, AliceInChess::id())?;
+    unregister(&as_alice_in_wland, MagnusInChess::id())?;
     Ok(())
 }
 
