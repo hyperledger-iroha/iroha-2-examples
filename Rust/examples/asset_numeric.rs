@@ -67,7 +67,7 @@ fn main() -> iroha_examples::Result<()> {
     // Observe that `alice@wonderland` has 1.97 of `money#wonderland` left.
     as_alice_in_wland
         .request(asset::by_id(money_of_alice_in_wland.clone()))?
-        .assert_eq(numeric!(1.98));
+        .assert_eq(numeric!(1.97));
     as_alice_in_wland.submit_blocking(
         // `alice@wonderland` can transfer some of her `money#wonderland` to another account.
         // Like with minting, an asset can be transferred by its owner, the owner of

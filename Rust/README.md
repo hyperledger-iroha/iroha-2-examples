@@ -10,13 +10,11 @@ To run the examples, you should have a running Iroha network with the default ge
 
 ## Helper library
 
-A small helper library is included to facilitate the creation of code examples that demonstrate Iroha usage patterns while focusing on high-level concepts.
-
-Users can learn to use the lower-level APIs by checking out the implementations of the building blocks.
+A small helper library is included to facilitate defining actors and props involved in the examples while avoiding repetition of the parsing logic, etc.
 
 ### Usage
 
-* Define primitives like domains (`Wonderland`, `Chess`), signatories (`Alice`, `Bob`, `Magnus`), assets (`Roses`, `Pawns`, `Book`), and more using traits like `ExampleDomain`, `ExampleSignatory` `ExampleAssetName` and others.
-* Combine primitives into compound types for accounts (`AliceInWonderland`, `BobInChess`), asset definitions (`WonderlandRoses`, `GardenCabbages`) and more using `ExampleAccount`, `ExampleAssetDefinition`, etc.
-* Easily construct identifiers (`BobInWonderland::account_id()`, `ChessBookOfAliceInWonderland::asset_id()`) as needed.
+* Define primitives like domains (`Wonderland`, `Chess`), signatories (`Alice`, `Bob`, `Magnus`), assets (`Money`, `Roses`, `Clothes`), and more using traits like `ExampleDomain`, `ExampleSignatory` `ExampleAssetName` and others.
+* Combine primitives into compound types for accounts (`AliceInWonderland`, `BobInChess`), asset definitions (`WonderlandRoses`, `ChessClothes`) and more using `ExampleAccount`, `ExampleAssetDefinition`, etc.
+* Easily construct identifiers (`BobInWonderland::account_id()`, `ClothesOfBobInChess::asset_id()`) as needed.
 * Construct clients acting on behalf of various accounts using `AliceInWonderland::client()`, `BobInChess::client()`.

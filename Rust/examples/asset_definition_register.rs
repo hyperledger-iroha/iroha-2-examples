@@ -9,7 +9,7 @@ use iroha::data_model::isi::Grant;
 use iroha::data_model::permission::{Permission, PermissionId};
 use iroha::data_model::prelude::{Metadata, NewAssetDefinition, NumericSpec, Register, Revoke};
 use iroha_examples::{
-    AliceInWonderland, BobInChess, Chess, ChessBook, ChessPawns, ExampleDomain,
+    AliceInWonderland, BobInChess, Chess, ChessClothes, ChessPawns, ExampleDomain,
     WonderlandMoney, WonderlandRoses,
 };
 
@@ -63,14 +63,14 @@ fn main() -> iroha_examples::Result<()> {
         can_define_assets_in_chess.clone(),
         BobInChess::id(),
     ))?;
-    // `book#chess` is a store asset. Store assets are not minted or burned.
+    // `clothes#chess` is a store asset. Store assets are not minted or burned.
     // Instead, key-value pairs are set or removed for them.
     //
     // Here we also provide an optional IPFS path to the asset logo,
     // and some metadata. Metadata is covered in detail in TODO(`metadata`)
     register(
         &as_alice_in_wland,
-        AssetDefinition::store(ChessBook::id())
+        AssetDefinition::store(ChessClothes::id())
             .with_logo("QmQqzMTavQgT4f4T5v6PWBp7XNKtoPmC9jvn12WPT3gkSE".parse::<IpfsPath>()?)
             .with_metadata(Metadata::default()),
     )?;

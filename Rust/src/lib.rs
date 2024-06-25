@@ -294,11 +294,11 @@ impl ExampleAssetName for Pawns {
     const NAME: &'static str = "pawn";
 }
 
-/// The general idea of a book.
-pub struct Book;
+/// The general idea of clothes.
+pub struct Clothes;
 
-impl ExampleAssetName for Book {
-    const NAME: &'static str = "book";
+impl ExampleAssetName for Clothes {
+    const NAME: &'static str = "clothes";
 }
 
 /// `rose#wonderland` is defined in the default genesis block.
@@ -307,16 +307,16 @@ pub type WonderlandRoses = ExampleAssetDefinition<Roses, Wonderland>;
 pub type WonderlandMoney = ExampleAssetDefinition<Money, Wonderland>;
 /// `pawn#chess` is defined in the `asset_definition_register` example.
 pub type ChessPawns = ExampleAssetDefinition<Pawns, Chess>;
-/// `book#chess` is defined in the `asset_definition_register` example.
-pub type ChessBook = ExampleAssetDefinition<Book, Chess>;
+/// `clothes#chess` is defined in the `asset_definition_register` example.
+pub type ChessClothes = ExampleAssetDefinition<Clothes, Chess>;
 
 /// `roses##alice@wonderland` is defined in the default genesis block.
 pub type RosesOfAliceInWonderland = ExampleAsset<WonderlandRoses, AliceInWonderland>;
-/// `money##alice@wonderland` is defined in the TODO(`asset_register`) example.
+/// `money##alice@wonderland` is defined in the `asset_numeric` example.
 pub type MoneyOfAliceInWonderland = ExampleAsset<WonderlandMoney, AliceInWonderland>;
-/// `book#chess#alice@wonderland` is defined in the TODO(`asset_register`) example.
-pub type ChessBookOfAliceInWonderland = ExampleAsset<ChessBook, AliceInWonderland>;
-/// `money##bob@wonderland` is defined in the TODO(`asset_register`) example.
+/// `money##bob@wonderland` is defined in the `asset_numeric` example.
 pub type MoneyOfBobInWonderland = ExampleAsset<WonderlandMoney, BobInWonderland>;
-/// `money#wonderland#magnus@chess` is defined in the TODO(`asset_register`) example.
+/// `money#wonderland#magnus@chess` is defined in the `asset_numeric` example.
 pub type WonderlandMoneyOfMagnusInChess = ExampleAsset<WonderlandMoney, MagnusInChess>;
+/// `clothes##bob@chess` is defined in the `asset_store` example.
+pub type ClothesOfBobInChess = ExampleAsset<ChessClothes, BobInChess>;
