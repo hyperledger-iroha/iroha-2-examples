@@ -41,11 +41,10 @@ fn main() -> iroha_examples::Result<()> {
         can_define_assets_in_chess.clone(),
         BobInChess::id(),
     ))?;
-    // `pawn#chess` is a numeric asset with integer values that can only be minted once.
-    // It means that a certain amount of an asset can be given to an account one time,
-    // and from that point it can only be burnt.
+    // `pawn#chess` is a numeric asset with integer values that can only be minted once,
+    // meaning that the asset has a globally fixed supply.
     //
-    // Mintability is covered in detail in the `asset_numeric` example.
+    // Mintability is covered in detail in the TODO(`asset_numeric_mintability`) example.
     //
     // `bob@chess` will be the owner of the definition of `pawn#chess`,
     // meaning he will have the default right to mint/burn `pawn#chess`.
