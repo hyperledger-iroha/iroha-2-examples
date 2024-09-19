@@ -307,8 +307,8 @@ pub type WonderlandRoses = ExampleAssetDefinition<Roses, Wonderland>;
 pub type WonderlandMoney = ExampleAssetDefinition<Money, Wonderland>;
 /// `pawn#chess` is defined in the `asset_definition_register` example.
 pub type ChessPawns = ExampleAssetDefinition<Pawns, Chess>;
-/// `clothes#chess` is defined in the `asset_definition_register` example.
-pub type ChessClothes = ExampleAssetDefinition<Clothes, Chess>;
+/// `book#chess` is defined in the `asset_definition_register` example.
+pub type ChessBook = ExampleAssetDefinition<Clothes, Chess>;
 
 /// `roses##alice@wonderland` is defined in the default genesis block.
 pub type RosesOfAliceInWonderland = ExampleAsset<WonderlandRoses, AliceInWonderland>;
@@ -318,5 +318,9 @@ pub type MoneyOfAliceInWonderland = ExampleAsset<WonderlandMoney, AliceInWonderl
 pub type MoneyOfBobInWonderland = ExampleAsset<WonderlandMoney, BobInWonderland>;
 /// `money#wonderland#magnus@chess` is defined in the `asset_numeric` example.
 pub type WonderlandMoneyOfMagnusInChess = ExampleAsset<WonderlandMoney, MagnusInChess>;
-/// `clothes##bob@chess` is defined in the `asset_store` example.
-pub type ClothesOfBobInChess = ExampleAsset<ChessClothes, BobInChess>;
+/// `pawn##alice@chess` is defined in the `asset_numeric` example.
+pub type PawnsOfAliceInChess = ExampleAsset<ChessPawns, AliceInChess>;
+/// `pawn##bob@chess` is defined in the `asset_numeric` example.
+pub type PawnsOfBobInChess = ExampleAsset<ChessPawns, BobInChess>;
+/// `book##bob@chess` is defined in the `asset_store` example.
+pub type BookOfBobInChess = ExampleAsset<ChessBook, BobInChess>;

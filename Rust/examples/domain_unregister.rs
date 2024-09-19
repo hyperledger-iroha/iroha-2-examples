@@ -2,8 +2,7 @@
 //!
 //! Depends on the `domain_register` example.
 
-use iroha::client::domain;
-use iroha::data_model::prelude::Unregister;
+use iroha::data_model::prelude::{FindDomains, QueryBuilderExt, Unregister};
 
 use iroha_examples::{AliceInWonderland, Chess, ExampleDomain};
 
@@ -13,7 +12,9 @@ fn main() -> iroha_examples::Result<()> {
     let unregister_chess = Unregister::domain(chess.clone());
     as_alice_in_wland.submit_blocking(unregister_chess)?;
     as_alice_in_wland
-        .request(domain::by_id(chess.clone()))
+        .query(FindDomains)
+        .filter_with(|dom| dom.id.eq(chess.clone()))
+        .execute_single()
         .expect_err("domain should not be found");
     println!(
         "Domain: {}\nUnregistered by: {}",

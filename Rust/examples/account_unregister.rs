@@ -2,9 +2,9 @@
 //!
 //! Depends on the `account_register` example.
 
-use iroha::client::{account, Client};
+use iroha::client::Client;
 use iroha::data_model::account::AccountId;
-use iroha::data_model::prelude::Unregister;
+use iroha::data_model::prelude::{FindAccounts, QueryBuilderExt, Unregister};
 
 use iroha_examples::{AliceInChess, AliceInWonderland, BobInChess, MagnusInChess};
 
@@ -24,7 +24,9 @@ fn unregister(as_who: &Client, account: AccountId) -> iroha_examples::Result<()>
     as_who.submit_blocking(unregister_account)?;
     // Observe that the account has really been unregistered.
     as_who
-        .request(account::by_id(account.clone()))
+        .query(FindAccounts)
+        .filter_with(|acc| acc.id.eq(account.clone()))
+        .execute_single()
         .expect_err("account should not be found");
     println!("Account: {}\nUnregistered by: {}", account, as_who.account);
     // Account: ed12...41@wonderland

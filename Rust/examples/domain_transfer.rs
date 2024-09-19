@@ -2,8 +2,8 @@
 //!
 //! Depends on the `domain_register` example.
 
-use iroha::client::{domain, Client};
-use iroha::data_model::prelude::{AccountId, DomainId, Transfer};
+use iroha::client::Client;
+use iroha::data_model::prelude::{AccountId, DomainId, FindDomains, QueryBuilderExt, Transfer};
 
 use iroha_examples::{AliceInWonderland, BobInWonderland, ExampleDomain, Wonderland};
 
@@ -36,13 +36,19 @@ fn transfer(
 ) -> iroha_examples::Result<()> {
     {
         // Observe that the old owner owns the domain.
-        let domain = as_who.request(domain::by_id(domain.clone()))?;
+        let domain = as_who
+            .query(FindDomains)
+            .filter_with(|dom| dom.id.eq(domain.clone()))
+            .execute_single()?;
         assert_eq!(domain.owned_by, from);
     }
     let transfer_domain = Transfer::domain(from.clone(), domain.clone(), to.clone());
     as_who.submit_blocking(transfer_domain)?;
     // Observe that now the new owner owns the domain.
-    let domain = as_who.request(domain::by_id(domain.clone()))?;
+    let domain = as_who
+        .query(FindDomains)
+        .filter_with(|dom| dom.id.eq(domain.clone()))
+        .execute_single()?;
     assert_eq!(domain.owned_by, to);
     println!(
         "Domain: {}\nTransferred\n\tfrom: {}\n\tto: {}\nby: {}",

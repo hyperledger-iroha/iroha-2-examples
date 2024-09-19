@@ -2,14 +2,16 @@
 //!
 //! Depends on `asset_definition_register`
 
-use iroha::client::asset;
+use iroha::client::Client;
 use iroha::data_model::prelude::{
-    numeric, Asset, AssetValue, Burn, Mint, Numeric, Register, Transfer,
+    numeric, Asset, AssetId, AssetValue, Burn, FindAssets, Mint, Numeric, QueryBuilderExt,
+    Register, Transfer,
 };
 
 use iroha_examples::{
-    AliceInWonderland, BobInWonderland, MagnusInChess, MoneyOfAliceInWonderland,
-    MoneyOfBobInWonderland, WonderlandMoneyOfMagnusInChess,
+    AliceInChess, AliceInWonderland, BobInChess, BobInWonderland, MagnusInChess,
+    MoneyOfAliceInWonderland, MoneyOfBobInWonderland, PawnsOfAliceInChess, PawnsOfBobInChess,
+    WonderlandMoneyOfMagnusInChess,
 };
 
 fn main() -> iroha_examples::Result<()> {
@@ -22,21 +24,8 @@ fn main() -> iroha_examples::Result<()> {
     let money_of_bob_in_wland = MoneyOfBobInWonderland::id();
     // `money#wonderland` can be held by accounts outside `wonderland`.
     let wland_money_of_magnus_in_chess = WonderlandMoneyOfMagnusInChess::id();
-    // TODO: this section is not true, but I'd like it to be;
-    //  see https://github.com/hyperledger/iroha/issues/4087#issuecomment-2188067574
-    as_alice_in_wland.submit_all_blocking([
-        // For `alice@wonderland` to be able to hold `money#wonderland`, we need
-        // to register `money##alice@wonderland`. This is sort of like
-        // giving her a wallet before she can carry `money#wonderland`.
-        Register::asset(Asset::new(money_of_alice_in_wland.clone(), 0_u32)),
-        // Register `money#wonderland` for `bob@wonderland` for `alice@wonderland`s later transfer.
-        // Since `alice@wonderland` owns the definition of `money#wonderland`, she has to do it.
-        Register::asset(Asset::new(money_of_bob_in_wland.clone(), 0_u32)),
-        // Register `money#wonderland` for `magnus@chess` for `bob@wonderland`s later transfer.
-        Register::asset(Asset::new(wland_money_of_magnus_in_chess.clone(), 0_u32)),
-    ])?;
-    // FIXME: currently, minting will register the asset if it does not exist.
-    // Now `alice@wonderland` can mint `money#wonderland` for herself, since
+
+    // `alice@wonderland` can mint `money#wonderland` for herself, since
     // she was the one who defined it. Someone holding a relevant permission
     // can also mint an asset.
     //
@@ -50,9 +39,7 @@ fn main() -> iroha_examples::Result<()> {
         Mint::asset_numeric(numeric!(1.25), money_of_alice_in_wland.clone()),
     ])?;
     // Observe that `alice@wonderland` has 5 of `money#wonderland`.
-    as_alice_in_wland
-        .request(asset::by_id(money_of_alice_in_wland.clone()))?
-        .assert_eq(numeric!(5));
+    as_alice_in_wland.assert_asset_eq(money_of_alice_in_wland.clone(), numeric!(5));
     // Now that `alice@wonderland` has some of `money#wonderland`,
     // she can burn it. An asset can be burned by its owner,
     // the owner of its definition, and a holder of a relevant permission.
@@ -65,9 +52,7 @@ fn main() -> iroha_examples::Result<()> {
         Burn::asset_numeric(numeric!(2.01), money_of_alice_in_wland.clone()),
     ])?;
     // Observe that `alice@wonderland` has 1.97 of `money#wonderland` left.
-    as_alice_in_wland
-        .request(asset::by_id(money_of_alice_in_wland.clone()))?
-        .assert_eq(numeric!(1.97));
+    as_alice_in_wland.assert_asset_eq(money_of_alice_in_wland.clone(), numeric!(1.97));
     as_alice_in_wland.submit_blocking(
         // `alice@wonderland` can transfer some of her `money#wonderland` to another account.
         // Like with minting, an asset can be transferred by its owner, the owner of
@@ -79,14 +64,10 @@ fn main() -> iroha_examples::Result<()> {
         ),
     )?;
     // `alice@wonderland` observes that she has 0.57 of `money#wonderland` left.
-    as_alice_in_wland
-        .request(asset::by_id(money_of_alice_in_wland))?
-        .assert_eq(numeric!(0.57));
+    as_alice_in_wland.assert_asset_eq(money_of_alice_in_wland.clone(), numeric!(0.57));
     // `bob@wonderland` observes that he has 1.4 of `money#wonderland` now.
     // He can do that because he owns `money##bob@wonderland`.
-    as_bob_in_wland
-        .request(asset::by_id(money_of_bob_in_wland.clone()))?
-        .assert_eq(numeric!(1.4));
+    as_bob_in_wland.assert_asset_eq(money_of_bob_in_wland.clone(), numeric!(1.4));
     as_bob_in_wland.submit_blocking(
         // `bob@wonderland` can transfer some of his `money#wonderland` to `magnus@chess`.
         // Note how `money#wonderland` can be held by accounts in different domains.
@@ -94,19 +75,60 @@ fn main() -> iroha_examples::Result<()> {
     )?;
     // `alice@wonderland` observes that `magnus@chess` has 0.7 of `money#wonderland`.
     // She can do that because she owns the definition of `money#wonderland`.
-    as_alice_in_wland
-        .request(asset::by_id(wland_money_of_magnus_in_chess))?
-        .assert_eq(numeric!(0.7));
+    as_alice_in_wland.assert_asset_eq(wland_money_of_magnus_in_chess, numeric!(0.7));
+
+    // `pawn#chess` is a mintable-once asset. It has a fixed global supply.
+    let as_bob_in_chess = BobInChess::client();
+    let pawns_of_alice_in_chess = PawnsOfAliceInChess::id();
+    let pawns_of_bob_in_chess = PawnsOfBobInChess::id();
+    as_bob_in_chess.submit_all_blocking([
+        Register::asset(Asset::new(pawns_of_alice_in_chess.clone(), Numeric::ZERO)),
+        Register::asset(Asset::new(pawns_of_bob_in_chess.clone(), Numeric::ZERO)),
+    ])?;
+    as_bob_in_chess.submit_blocking(
+        // By minting `pawn##chess@alice`, we fix the global supply.
+        Mint::asset_numeric(numeric!(16), pawns_of_alice_in_chess.clone()),
+    )?;
+    // No more `pawn#chess` can be minted.
+    [
+        as_bob_in_chess.submit_blocking(Mint::asset_numeric(
+            numeric!(1),
+            pawns_of_alice_in_chess.clone(),
+        )),
+        as_bob_in_chess.submit_blocking(Mint::asset_numeric(
+            numeric!(1),
+            pawns_of_bob_in_chess.clone(),
+        )),
+    ]
+    .map(|r| assert!(r.is_err()));
+    // `alice@chess` can still burn and transfer her `pawn#chess`:
+    let as_alice_in_chess = AliceInChess::client();
+    as_alice_in_chess.submit_blocking(Burn::asset_numeric(
+        numeric!(8),
+        pawns_of_alice_in_chess.clone(),
+    ))?;
+    as_alice_in_chess.submit_blocking(Transfer::asset_numeric(
+        pawns_of_alice_in_chess.clone(),
+        numeric!(8),
+        BobInChess::id(),
+    ))?;
+    as_alice_in_chess.assert_asset_eq(pawns_of_alice_in_chess, Numeric::ZERO);
+    as_bob_in_chess.assert_asset_eq(pawns_of_bob_in_chess, numeric!(8));
     Ok(())
 }
 
 trait NumericAssetExt {
-    fn assert_eq(&self, expected: Numeric);
+    fn assert_asset_eq(&self, asset_id: AssetId, expected: Numeric);
 }
 
-impl NumericAssetExt for Asset {
-    fn assert_eq(&self, expected: Numeric) {
-        let AssetValue::Numeric(actual) = self.value else {
+impl NumericAssetExt for Client {
+    fn assert_asset_eq(&self, asset_id: AssetId, expected: Numeric) {
+        let asset = self
+            .query(FindAssets)
+            .filter_with(|asset| asset.id.eq(asset_id))
+            .execute_single()
+            .unwrap();
+        let AssetValue::Numeric(actual) = asset.value else {
             // FIXME: this API inconvenience should be resolved
             //  when numeric assets are separated from store assets.
             panic!("should be a numeric asset");
