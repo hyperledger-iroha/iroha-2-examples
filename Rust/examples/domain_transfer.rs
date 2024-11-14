@@ -3,7 +3,9 @@
 //! Depends on the `domain_register` example.
 
 use iroha::client::Client;
-use iroha::data_model::prelude::{AccountId, DomainId, FindDomains, QueryBuilderExt, Transfer, Identifiable};
+use iroha::data_model::prelude::{
+    AccountId, DomainId, FindDomains, Identifiable, QueryBuilderExt, Transfer,
+};
 
 use iroha_examples::{AliceInWonderland, BobInWonderland, ExampleDomain, Wonderland};
 
@@ -52,7 +54,10 @@ fn transfer(
     assert_eq!(domain.owned_by(), &to);
     println!(
         "Domain: {}\nTransferred\n\tfrom: {}\n\tto: {}\nby: {}",
-        domain.id(), from, to, as_who.account
+        domain.id(),
+        from,
+        to,
+        as_who.account
     );
     // Domain: chess
     // Transferred

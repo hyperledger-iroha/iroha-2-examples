@@ -3,15 +3,15 @@
 //! Depends on the `domain_register` example.
 
 use iroha::client::Client;
-use iroha::data_model::Identifiable;
 use iroha::data_model::prelude::{
     Account, AccountId, FindAccounts, Grant, QueryBuilderExt, Register, Revoke,
 };
-use iroha_executor_data_model::permission::account::CanRegisterAccount;
+use iroha::data_model::Identifiable;
 use iroha_examples::{
     AliceInChess, AliceInWonderland, BobInChess, BobInWonderland, Chess, ExampleDomain,
     MagnusInChess,
 };
+use iroha_executor_data_model::permission::account::CanRegisterAccount;
 
 fn main() -> iroha_examples::Result<()> {
     // An account is created for a signatory in a domain.
@@ -50,7 +50,11 @@ fn register(as_who: &Client, account: AccountId) -> iroha_examples::Result<()> {
         .query(FindAccounts)
         .filter_with(|acc| acc.id.eq(account))
         .execute_single()?;
-    println!("Account: {}\nRegistered by: {}", account.id(), as_who.account);
+    println!(
+        "Account: {}\nRegistered by: {}",
+        account.id(),
+        as_who.account
+    );
     // Account: ed12...41@wonderland
     // Registered by: ed01...12@wonderland
     Ok(())

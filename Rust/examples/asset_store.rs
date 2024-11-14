@@ -6,7 +6,10 @@
 
 use iroha::client::Client;
 use iroha::data_model::asset::{Asset, AssetValue};
-use iroha::data_model::prelude::{AssetId, FindAssets, Json, Metadata, Name, QueryBuilderExt, Register, RemoveKeyValue, SetKeyValue};
+use iroha::data_model::prelude::{
+    AssetId, FindAssets, Json, Metadata, Name, QueryBuilderExt, Register, RemoveKeyValue,
+    SetKeyValue,
+};
 use iroha_examples::{AliceInWonderland, BobInChess, BookOfBobInChess};
 
 fn main() -> iroha_examples::Result<()> {

@@ -10,11 +10,11 @@ use iroha::data_model::prelude::{
     FindAssetsDefinitions, Metadata, NewAssetDefinition, NumericSpec, QueryBuilderExt, Register,
     Revoke,
 };
-use iroha_executor_data_model::permission::asset_definition::CanRegisterAssetDefinition;
 use iroha_examples::{
     AliceInWonderland, BobInChess, Chess, ChessBook, ChessPawns, ExampleDomain, WonderlandMoney,
     WonderlandRoses,
 };
+use iroha_executor_data_model::permission::asset_definition::CanRegisterAssetDefinition;
 
 fn main() -> iroha_examples::Result<()> {
     let as_alice_in_wland = AliceInWonderland::client();
@@ -87,7 +87,8 @@ fn register(as_who: &Client, asset_definition: NewAssetDefinition) -> iroha_exam
         .execute_single()?;
     println!(
         "Asset definition: {}\nRegistered by: {}",
-        asset_definition.id(), as_who.account
+        asset_definition.id(),
+        as_who.account
     );
     // Asset definition: pawn#chess
     // Registered by: ed01...12@wonderland
