@@ -1,28 +1,26 @@
 //! Shows how to work with permissions and roles.
 
 use iroha::data_model::prelude::*;
+use iroha_executor_data_model::permission::asset_definition::CanRegisterAssetDefinition;
 use iroha_examples::*;
 use iroha_executor_data_model::permission::domain::*;
 
 fn main() -> Result<()> {
     let chess = Chess::id();
+    let bob_in_chess = BobInChess::id();
+    
     // define a role for managing chess
     let chess_manager: RoleId = "CHESS_MANAGER".parse()?;
-    let new_chess_manager = Role::new(chess_manager.clone())
-        //
-        .add_permission(CanSetKeyValueInDomain {
-            domain: chess.clone(),
-        })
-        .add_permission(CanRemoveKeyValueInDomain {
+    let new_chess_manager = Role::new(chess_manager.clone(), bob_in_chess.clone())
+        .add_permission(CanModifyDomainMetadata {
             domain: chess.clone(),
         });
 
     // grant the role to bob@chess
-    let bob_in_chess = BobInChess::id();
     let as_alice_in_wland = AliceInWonderland::client();
     as_alice_in_wland.submit_all_blocking::<InstructionBox>([
         Register::role(new_chess_manager).into(),
-        Grant::role(chess_manager.clone(), bob_in_chess.clone()).into(),
+        Grant::account_role(chess_manager.clone(), bob_in_chess.clone()).into(),
     ])?;
 
     // bob@chess is now able to set key-values in chess
@@ -35,7 +33,7 @@ fn main() -> Result<()> {
 
     // add permissions to an existing role
     as_alice_in_wland.submit_all_blocking([Grant::role_permission(
-        CanRegisterAssetDefinitionInDomain {
+        CanRegisterAssetDefinition {
             domain: chess.clone(),
         },
         chess_manager.clone(),
@@ -49,7 +47,7 @@ fn main() -> Result<()> {
     as_bob_in_chess.submit_blocking(Unregister::asset_definition(chess_pawns))?;
 
     // revoke the role from bob@chess
-    as_alice_in_wland.submit_blocking(Revoke::role(chess_manager.clone(), bob_in_chess))?;
+    as_alice_in_wland.submit_blocking(Revoke::account_role(chess_manager.clone(), bob_in_chess))?;
     // remove the role
     as_alice_in_wland.submit_blocking(Unregister::role(chess_manager))?;
     Ok(())

@@ -30,7 +30,7 @@ fn main() -> iroha_examples::Result<()> {
             Some(mint_wland_roses_of_alice),
             Repeats::Indefinitely,
             alice_in_wland,
-            TimeEventFilter(ExecutionTime::Schedule(every_second)),
+            TimeEventFilter::new(ExecutionTime::Schedule(every_second)),
         ),
     );
 
@@ -41,9 +41,7 @@ fn main() -> iroha_examples::Result<()> {
     // Query Alice's Wonderland roses before:
     println!(
         "Alice's Wonderland Rose count before trigger execution: {}",
-        as_alice_in_wland.query_single(FindAssetQuantityById {
-            id: wland_roses_of_alice.clone(),
-        })?
+        as_alice_in_wland.query_single(FindAssetQuantityById::new(wland_roses_of_alice.clone()))?
     );
 
     // Sleep for a few seconds to allow the trigger to mint multiple roses
@@ -53,9 +51,7 @@ fn main() -> iroha_examples::Result<()> {
     // Query Alice's Wonderland roses after:
     println!(
         "Alice's Wonderland Rose count after trigger execution: {}",
-        as_alice_in_wland.query_single(FindAssetQuantityById {
-            id: wland_roses_of_alice.clone(),
-        })?
+        as_alice_in_wland.query_single(FindAssetQuantityById::new(wland_roses_of_alice.clone()))?
     );
 
     // Unregister the trigger.

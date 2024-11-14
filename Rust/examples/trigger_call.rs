@@ -33,9 +33,7 @@ fn main() -> iroha_examples::Result<()> {
     // Query Alice's Wonderland roses before:
     println!(
         "Alice's Wonderland Rose count before trigger execution: {}",
-        as_alice_in_wland.query_single(FindAssetQuantityById {
-            id: wland_roses_of_alice.clone(),
-        })?
+        as_alice_in_wland.query_single(FindAssetQuantityById::new(wland_roses_of_alice.clone()))?
     );
 
     // Execute the trigger via an instruction.
@@ -44,9 +42,7 @@ fn main() -> iroha_examples::Result<()> {
     // Query Alice's Wonderland roses after:
     println!(
         "Alice's Wonderland Rose count after trigger execution: {}",
-        as_alice_in_wland.query_single(FindAssetQuantityById {
-            id: wland_roses_of_alice.clone(),
-        })?
+        as_alice_in_wland.query_single(FindAssetQuantityById::new(wland_roses_of_alice.clone()))?
     );
 
     // Unregister the trigger.
