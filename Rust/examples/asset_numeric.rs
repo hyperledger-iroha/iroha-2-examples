@@ -128,11 +128,11 @@ impl NumericAssetExt for Client {
             .filter_with(|asset| asset.id.eq(asset_id))
             .execute_single()
             .unwrap();
-        let AssetValue::Numeric(actual) = asset.value else {
+        let AssetValue::Numeric(actual) = asset.value() else {
             // FIXME: this API inconvenience should be resolved
             //  when numeric assets are separated from store assets.
             panic!("should be a numeric asset");
         };
-        assert_eq!(actual, expected);
+        assert_eq!(actual, &expected);
     }
 }

@@ -10,11 +10,11 @@ use iroha::data_model::prelude::{
     FindAssetsDefinitions, Metadata, NewAssetDefinition, NumericSpec, QueryBuilderExt, Register,
     Revoke,
 };
+use iroha_executor_data_model::permission::asset_definition::CanRegisterAssetDefinition;
 use iroha_examples::{
     AliceInWonderland, BobInChess, Chess, ChessBook, ChessPawns, ExampleDomain, WonderlandMoney,
     WonderlandRoses,
 };
-use iroha_executor_data_model::permission::domain::CanRegisterAssetDefinitionInDomain;
 
 fn main() -> iroha_examples::Result<()> {
     let as_alice_in_wland = AliceInWonderland::client();
@@ -39,7 +39,7 @@ fn main() -> iroha_examples::Result<()> {
     // Since `bob@chess` is not the owner of `chess`, `alice@wonderland`
     // has to grant `bob@chess` permission to define assets in `chess`.
     let bob_in_chess = BobInChess::id();
-    let can_define_assets_in_chess = CanRegisterAssetDefinitionInDomain {
+    let can_define_assets_in_chess = CanRegisterAssetDefinition {
         domain: Chess::id(),
     };
     // Grant the permission to `bob@chess`.
@@ -78,7 +78,7 @@ fn main() -> iroha_examples::Result<()> {
 }
 
 fn register(as_who: &Client, asset_definition: NewAssetDefinition) -> iroha_examples::Result<()> {
-    let asset_definition_id = asset_definition.id.clone();
+    let asset_definition_id = asset_definition.id().clone();
     let define_asset = Register::asset_definition(asset_definition);
     as_who.submit_blocking(define_asset)?;
     let asset_definition = as_who
@@ -87,7 +87,7 @@ fn register(as_who: &Client, asset_definition: NewAssetDefinition) -> iroha_exam
         .execute_single()?;
     println!(
         "Asset definition: {}\nRegistered by: {}",
-        asset_definition.id, as_who.account
+        asset_definition.id(), as_who.account
     );
     // Asset definition: pawn#chess
     // Registered by: ed01...12@wonderland

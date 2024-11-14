@@ -28,7 +28,7 @@ fn unregister(as_who: &Client, account: AccountId) -> iroha_examples::Result<()>
         .filter_with(|acc| acc.id.eq(account.clone()))
         .execute_single()
         .expect_err("account should not be found");
-    println!("Account: {}\nUnregistered by: {}", account, as_who.account);
+    println!("Account: {account}\nUnregistered by: {}", as_who.account);
     // Account: ed12...41@wonderland
     // Unregistered by: ed01...12@wonderland
     Ok(())
