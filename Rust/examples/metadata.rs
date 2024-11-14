@@ -7,10 +7,12 @@ fn main() -> iroha_examples::Result<()> {
     let alice_in_wland = AliceInWonderland::id();
     let as_alice_in_wland = AliceInWonderland::client();
     let key = "key".parse::<Name>()?;
-    let value = as_alice_in_wland.query_single(FindAccountMetadata::new(
-        alice_in_wland.clone(),
-        key.clone(),
-    )).ok();
+    let value = as_alice_in_wland
+        .query_single(FindAccountMetadata::new(
+            alice_in_wland.clone(),
+            key.clone(),
+        ))
+        .ok();
     println!("metadata[{key}] of alice@wonderland: {value:?}");
 
     as_alice_in_wland.submit_blocking(SetKeyValue::account(
@@ -28,9 +30,11 @@ fn main() -> iroha_examples::Result<()> {
     as_alice_in_wland
         .submit_blocking(RemoveKeyValue::account(alice_in_wland.clone(), key.clone()))?;
 
-    as_alice_in_wland.query_single(FindAccountMetadata::new(
-        alice_in_wland.clone(),
-        key.clone(),
-    )).expect_err("key-value should be removed");
+    as_alice_in_wland
+        .query_single(FindAccountMetadata::new(
+            alice_in_wland.clone(),
+            key.clone(),
+        ))
+        .expect_err("key-value should be removed");
     Ok(())
 }

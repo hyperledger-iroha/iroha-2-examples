@@ -18,14 +18,14 @@ fn main() -> iroha_examples::Result<()> {
     // on behalf of the account configured with the client
     let as_alice_in_wland = AliceInWonderland::client();
     let signed_tx = as_alice_in_wland.build_transaction(instructions, Metadata::default());
-    
+
     let _tx_hash_1 = as_alice_in_wland.submit_transaction(&signed_tx)?;
-    
+
     // Transaction 1 may or may not have been committed or rejected.
     // If you want synchronous behavior, use the _blocking variant:
-    
+
     let _tx_hash_2 = as_alice_in_wland.submit_transaction_blocking(&signed_tx)?;
-    
+
     // If this line has been reached, Transaction 2 has been committed.
     Ok(())
 }

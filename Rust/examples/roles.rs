@@ -1,20 +1,21 @@
 //! Shows how to work with permissions and roles.
 
 use iroha::data_model::prelude::*;
-use iroha_executor_data_model::permission::asset_definition::CanRegisterAssetDefinition;
 use iroha_examples::*;
+use iroha_executor_data_model::permission::asset_definition::CanRegisterAssetDefinition;
 use iroha_executor_data_model::permission::domain::*;
 
 fn main() -> Result<()> {
     let chess = Chess::id();
     let bob_in_chess = BobInChess::id();
-    
+
     // define a role for managing chess
     let chess_manager: RoleId = "CHESS_MANAGER".parse()?;
-    let new_chess_manager = Role::new(chess_manager.clone(), bob_in_chess.clone())
-        .add_permission(CanModifyDomainMetadata {
+    let new_chess_manager = Role::new(chess_manager.clone(), bob_in_chess.clone()).add_permission(
+        CanModifyDomainMetadata {
             domain: chess.clone(),
-        });
+        },
+    );
 
     // grant the role to bob@chess
     let as_alice_in_wland = AliceInWonderland::client();
