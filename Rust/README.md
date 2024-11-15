@@ -1,23 +1,20 @@
-# Rust examples for Iroha 2
+# Rust examples for Hyperledger Iroha
 
-This directory contains the examples from the [Rust tutorial](https://hyperledger.github.io/iroha-2-docs/guide/rust.html#_2-configuring-iroha-2).
+This project contains code examples to help you get started using the Rust SDK for Hyperledger Iroha, as well as understand Iroha conceptually.
 
 ## Running the examples
 
-To run the examples, you need to install [`cargo-nextest`](https://nexte.st/) first.
+To run the examples, you should have a running Iroha network with the default genesis block configuration. Some examples depend on other examples being executed. Examples without dependencies are good starting points:
 
-```bash
-cargo install cargo-nextest
-```
+- [`domain_register`](examples/domain_register.rs)
 
-After it is installed, type:
+## Helper library
 
-```bash
-cargo nextest run
-```
+A small helper library is included to facilitate defining actors and props involved in the examples while avoiding repetition of the parsing logic, etc.
 
-You'll Cargo install the packages that are needed for the tests and the test code will run.
+### Usage
 
-## Extending the example set
-
-Simply add a file with Rust code to the [`examples`](./examples/) directory. It will be launched by `cargo-nextest` on its next run.
+* Define primitives like domains (`Wonderland`, `Chess`), signatories (`Alice`, `Bob`, `Magnus`), assets (`Money`, `Roses`, `Clothes`), and more using traits like `ExampleDomain`, `ExampleSignatory` `ExampleAssetName` and others.
+* Combine primitives into compound types for accounts (`AliceInWonderland`, `BobInChess`), asset definitions (`WonderlandRoses`, `ChessClothes`) and more using `ExampleAccount`, `ExampleAssetDefinition`, etc.
+* Easily construct identifiers (`BobInWonderland::account_id()`, `ClothesOfBobInChess::asset_id()`) as needed.
+* Construct clients acting on behalf of various accounts using `AliceInWonderland::client()`, `BobInChess::client()`.
